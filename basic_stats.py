@@ -33,11 +33,7 @@ attack_counts = {defense_id: len(attacks[defense_id]) for defense_id in attacks}
 
 # Print the number of attacks for each defense
 for defense_id, count in attack_counts.items():
-    print(f"Defense {defense_id}: {count} attacks")
-
-
-
-# %%
+    print(f"{defenses[defense_id]['team']}, {defenses[defense_id]['model']}: {count} attacks")
 
 
 # %%
