@@ -26,6 +26,7 @@ with open(PATH / 'defense.json', 'r') as defenses_file:
         defense_id = defense["_id"]["$oid"]
         # Extract only the relevant defense data
         defense_data = {
+            "defense_id": defense_id,
             "defense_prompt": defense["defense_prompt"],
             "output_filters": defense["output_filters"],
         }
