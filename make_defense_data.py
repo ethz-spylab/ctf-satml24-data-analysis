@@ -52,7 +52,7 @@ with open(PATH / 'filtered_defense.json', 'w') as filtered_file:
 print("filtered_defense.json has been created.")
 
 #%%
-# Step 4: save only valid defenses
+# Step 4: take defenses which were used in the attack phase and connect with teams
 print(len(VALID), len(DQED))
 
 with open(PATH / 'valid_ids.json', 'w') as valid_ids_file:
@@ -71,7 +71,7 @@ with open(PATH / 'teams.json', 'w') as teams_file:
         }) + '\n')
 
 #%%
-# Step 5: save valid submissions
+# Step 5: save those defenses which were used in the attack phase
 with open(PATH / 'valid_defense.json', 'w') as valid_submissions_file:
     for submission_id, defense_data in final_mapping.items():
         if submission_id in VALID:

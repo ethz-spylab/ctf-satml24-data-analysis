@@ -37,3 +37,30 @@ for defense_id, count in attack_counts.items():
 
 
 # %%
+# Count how many attacks are how many messages
+# in the sense that "history" has two entries
+
+import pandas as pd
+
+# Create a DataFrame to store the message counts
+msg_counts = pd.DataFrame(0, index=defenses.keys(), columns=list(range(0, 16)) + ["more"])
+
+# Fill the DataFrame with the message counts
+for defense_id, attack_list in attacks.items():
+    for attack in attack_list:
+        msgs = attack["history"]
+        print(len(msgs))
+        if len(msgs) > 15:
+            msg_counts.loc[defense_id, "more"] += 1
+        else:
+            msg_counts.loc[defense_id, len(msgs)] += 1
+
+# Print the DataFrame
+print(msg_counts)
+
+# %%
+# Save the message counts DataFrame to a file
+msg_counts.to_csv(PATH / 'message_counts.csv')
+
+
+# %%
