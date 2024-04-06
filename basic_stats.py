@@ -66,7 +66,8 @@ for (team, model), attack_list in tqdm(attacks.items()):
             print(f"{team}, {model}: {len(msgs)} messages")
 
 # Print the DataFrame
-print(msg_counts)
+if __name__ == "__main__":
+    print(msg_counts)
 
 # %%
 # Save the message counts DataFrame to a file
