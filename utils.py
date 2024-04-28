@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
-PATH = Path("/data/projects/satml-llm-ctf-analysis/ctf-satml24")
+#PATH = Path("/data/projects/satml-llm-ctf-analysis/ctf-satml24")
+PATH : Path = Path(".")
 
 # Load valid_defense.json
 with open(PATH / 'valid_defense.json', 'r') as valid_defense_file:
