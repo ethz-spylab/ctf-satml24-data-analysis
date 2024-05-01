@@ -28,12 +28,16 @@ with open(f"{dataset_path}/secret_guess.json", 'r') as secret_guess_file:
             successful_secret_extractions[chat_id] = True
 
 # Now, read the chat.json file and update each entry with the new field
-with open(f"{dataset_path}/chat.json", 'r') as chats_file, \
-     open(f"{dataset_path}/chat_updated.json", 'w') as updated_chats_file:
+chats = []
+with open(f"{dataset_path}/chat.json", 'r') as chats_file:
     for line in tqdm(chats_file):
         chat = json.loads(line)
+        chats.append(chat)
         # Add the 'was_successful_secret_extraction' field to the chat entry
         chat_id = chat.get('_id').get('$oid')
         chat['was_successful_secret_extraction'] = successful_secret_extractions.get(chat_id, False)
         # Write the updated chat entry back to a new file
+
+with open(f"{dataset_path}/chat.json", 'w') as updated_chats_file:
+    for chat in chats:
         updated_chats_file.write(json.dumps(chat) + '\n')

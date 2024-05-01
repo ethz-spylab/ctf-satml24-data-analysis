@@ -3,7 +3,7 @@ from tqdm import tqdm
 from utils import PATH
 
 # Define the path to the updated chat file
-updated_chat_path = PATH /"chat_updated.json"
+updated_chat_path = PATH /"chat.json"
 
 # Function to read a sample of entries and verify the new field
 def test_successful_secret_extraction():
