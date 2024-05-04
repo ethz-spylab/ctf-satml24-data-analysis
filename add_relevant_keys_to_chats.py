@@ -29,6 +29,8 @@ Then, in the file, whenever we have a subdict that goes
 dataset_path = PATH
 
 filename = "chat.json"
+#filename = "secret.json"
+DRY_RUN = False
 
 @dataclass
 class Defense:
@@ -43,7 +45,6 @@ with open(f"{dataset_path}/valid_defense.json", 'r') as valid_defense_file:
         defense_id = defense_dict['defense_data']['defense_id']
         defenses[defense_id] = Defense(team=defense_dict['team'], model=defense_dict['model'])
 
-DRY_RUN = False
 
 datapoints = []
 with open(f"{dataset_path}/{filename}", 'r') as input_file:
@@ -64,38 +65,74 @@ for datapoint in datapoints:
         else:
             raise ValueError(f"Id {defense_id} not found in defenses")
     else:
-        raise ValueError(f"Defense not found for {datapoint}")
+        if filename.startswith("chat."):
+            raise ValueError(f"Defense not found for {datapoint}")
     # Append the potentially modified datapoint to the chats list
 
-if False:
-    # THESE ARE SECRET GUESSES, NOT ACTUAL SECRETS
-    secrets : dict[str, str] = {}
-    with open(f"{dataset_path}/secret_guess.json", 'r') as secret_guess_file:
-        for line in tqdm(secret_guess_file):
-            secret_dict = json.loads(line)
-            #secret_id = secret_dict['_id']['$oid']
-            secret_id = secret_dict['secret']['$id']['$oid']
-            secrets[secret_id] = secret_dict['value']
 
-    print(f"{len(secrets)} secrets")
-    cnt_unfound_secrets = 0
-    for datapoint in tqdm(datapoints):
-        if 'secret' in datapoint:
-            secret_id = datapoint['secret']['$id']['$oid']
-            secret = secrets.get(secret_id)
-            if secret:
-                datapoint['secret']['guessed_value'] = secret
-            else:
-                cnt_unfound_secrets += 1
-                datapoint['secret']['guessed_value'] = None
+secrets : dict[str, str] = {}
+with open(f"{dataset_path}/secret.json", 'r') as secret_file:
+    for line in tqdm(secret_file):
+        secret_dict = json.loads(line)
+        secret_id = secret_dict['_id']['$oid']
+        secrets[secret_id] = secret_dict['value']
+
+print(f"{len(secrets)} secrets")
+cnt_unfound_secrets = 0
+
+for datapoint in tqdm(datapoints):
+    if 'secret' in datapoint:
+        secret_id = datapoint['secret']['$id']['$oid']
+        secret = secrets.get(secret_id)
+        if secret:
+            datapoint['secret']['value'] = secret
         else:
+            cnt_unfound_secrets += 1
+            datapoint['secret']['value'] = None
+    else:
+        if filename.startswith("chat."):
             raise ValueError(f"Secret not found for {datapoint}")
 
-    print(f"{cnt_unfound_secrets} secrets not found out of {len(datapoints)}")
+print(f"{cnt_unfound_secrets} secrets not found out of {len(datapoints)}")
+
+
+secret_guesses : dict[str, list[str]] = {}
+with open(f"{dataset_path}/secret_guess.json", 'r') as secret_guess_file:
+    for line in tqdm(secret_guess_file):
+        secret_guess_dict = json.loads(line)
+        secret_id = secret_guess_dict['secret']['$id']['$oid']
+        if secret_id not in secret_guesses:
+            secret_guesses[secret_id] = []
+        secret_guesses[secret_id].append(secret_guess_dict['value'])
+
+print(f"{len(secret_guesses)} secret guesses")
+cnt_unfound_secret_guesses = 0
+
+for datapoint in tqdm(datapoints):
+    if 'secret' in datapoint:
+        secret_id = datapoint['secret']['$id']['$oid']
+        if secret_id in secret_guesses:
+            datapoint['secret']['guesses'] = secret_guesses[secret_id]
+        else:
+            cnt_unfound_secret_guesses += 1
+            datapoint['secret']['guesses'] = None
+    elif filename.startswith("secret."):
+        secret_id = datapoint['_id']['$oid']
+        if secret_id in secret_guesses:
+            datapoint['guesses'] = secret_guesses[secret_id]
+        else:
+            cnt_unfound_secret_guesses += 1
+            datapoint['guesses'] = None
+
+print(f"{cnt_unfound_secret_guesses} secret guesses not found out of {len(datapoints)}")
+
+
+
 
 if DRY_RUN:
-    for datapoint in datapoints[1500:1505]:
-        print(datapoint)
+    import random
+    for datapoint in random.sample(datapoints, 10):
+        print({k: v for k, v in datapoint.items() if k != 'history'})
 else:
     with open(f"{dataset_path}/{filename}", 'w') as output_file:
         for datapoint in datapoints:
