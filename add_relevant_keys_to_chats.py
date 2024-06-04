@@ -96,30 +96,38 @@ for datapoint in tqdm(datapoints):
 print(f"{cnt_unfound_secrets} secrets not found out of {len(datapoints)}")
 
 
-secret_guesses : dict[str, list[str]] = {}
+# TODO chat secret guesses are wrong
+secret_guesses_secret_id : dict[str, list[str]] = {}
+secret_guesses_chat_id : dict[str, list[str]] = {}
 with open(f"{dataset_path}/secret_guess.json", 'r') as secret_guess_file:
     for line in tqdm(secret_guess_file):
         secret_guess_dict = json.loads(line)
         secret_id = secret_guess_dict['secret']['$id']['$oid']
-        if secret_id not in secret_guesses:
-            secret_guesses[secret_id] = []
-        secret_guesses[secret_id].append(secret_guess_dict['value'])
+        chat_id = secret_guess_dict['chat']['$id']['$oid']
+        if secret_id not in secret_guesses_secret_id:
+            secret_guesses_secret_id[secret_id] = []
+        secret_guesses_secret_id[secret_id].append(secret_guess_dict['value'])
+        if chat_id not in secret_guesses_chat_id:
+            secret_guesses_chat_id[chat_id] = []
+        secret_guesses_chat_id[chat_id].append(secret_guess_dict['value'])
 
-print(f"{len(secret_guesses)} secret guesses")
+print(f"{len(secret_guesses_secret_id)} secrets with guesses")
+print(f"{len(secret_guesses_chat_id)} chats with guesses")
 cnt_unfound_secret_guesses = 0
 
 for datapoint in tqdm(datapoints):
-    if 'secret' in datapoint:
-        secret_id = datapoint['secret']['$id']['$oid']
-        if secret_id in secret_guesses:
-            datapoint['secret']['guesses'] = secret_guesses[secret_id]
+    if filename.startswith("chat."):
+        assert 'secret' in datapoint, f'{datapoint} does not have a "secret" key'
+        chat_id = datapoint['_id']['$oid']
+        if chat_id in secret_guesses_chat_id:
+            datapoint['secret']['guesses'] = secret_guesses_chat_id[chat_id]
         else:
             cnt_unfound_secret_guesses += 1
             datapoint['secret']['guesses'] = None
     elif filename.startswith("secret."):
         secret_id = datapoint['_id']['$oid']
-        if secret_id in secret_guesses:
-            datapoint['guesses'] = secret_guesses[secret_id]
+        if secret_id in secret_guesses_secret_id:
+            datapoint['guesses'] = secret_guesses_secret_id[secret_id]
         else:
             cnt_unfound_secret_guesses += 1
             datapoint['guesses'] = None
@@ -131,7 +139,8 @@ print(f"{cnt_unfound_secret_guesses} secret guesses not found out of {len(datapo
 
 if DRY_RUN:
     import random
-    for datapoint in random.sample(datapoints, 10):
+    #datapoints = [datapoint for datapoint in datapoints if datapoint['was_successful_secret_extraction']]
+    for datapoint in random.sample(datapoints, 50):
         print({k: v for k, v in datapoint.items() if k != 'history'})
 else:
     with open(f"{dataset_path}/{filename}", 'w') as output_file:
