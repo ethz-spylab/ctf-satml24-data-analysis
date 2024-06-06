@@ -76,7 +76,7 @@ def count_unique_attacker_defender_pairs(filename, is_jsonl=False, only_successf
 dataset_path = PATH
 
 test_filename = f"{dataset_path}/chat.120.json"
-main_filename = f"{dataset_path}/chat.json"
+main_filename = f"{dataset_path}/filtered_chat.json"
 #%%
 # Run the attacker-defender function on the test file first
 test_data = count_unique_attacker_defender_pairs(test_filename)
