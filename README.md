@@ -18,3 +18,9 @@ teams = load_dataset("ethz-spylab/ctf-satml24", "teams")["defense_teams"]
 
 chats = load_dataset("ethz-spylab/ctf-satml24", "interaction_chats")["attack"]
 ```
+
+----
+
+### Analyzing the data
+
+We provide a script `chat_diversity.py` to perform some basic analysis on the dataset that we include in our official report. The folder `raw_data_manipulation` includes transformations we performed on the raw data we collected from the competition. Please, reach to us if you think you need the original raw data.
