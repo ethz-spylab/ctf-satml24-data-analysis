@@ -6,6 +6,8 @@ Official repository of the [2024 SaTML LLM Capture-the-Flag Competition](https:/
 
 **Dataset**: https://huggingface.co/datasets/ethz-spylab/ctf-satml24
 
+**Blogpost**: https://spylab.ai/blog/results-competition/
+
 ----
 
 ### Loading the dataset form HuggingFace
